@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Touz Computer - Gaming Laptops</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{--accent:#0055a5}
+    body{font-family:Arial, sans-serif;background:#f5f5f5;color:#333;margin:0}
+    header{background:#222;color:#fff;text-align:center;padding:20px;position:relative}
+    .banner{background:var(--accent);color:#fff;text-align:center;padding:15px}
+    .card img{max-height:160px;width:auto;display:block;margin:0 auto 10px;object-fit:contain}
+    .card h3{color:var(--accent)}
+    section{padding:30px 15px}
+    footer{text-align:center;padding:15px;color:#777;font-size:14px}
+    /* Login styles */
+    .login-container{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+    .login-card{background:#fff;padding:40px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.2);max-width:400px;width:100%;opacity:1;transform:scale(1);transition:all .5s ease}
+    .login-card.animate-out{opacity:0;transform:scale(0.95);animation:slideFadeOut .5s ease forwards}
+    .error-message{color:#dc3545;font-size:14px;margin-top:10px;display:none;}
+    /* animations */
+    @keyframes slideFadeOut { from {opacity:1; transform:translateY(0) scale(1);} to { opacity:0; transform:translateY(-30px) scale(.95); } }
+    @keyframes fadeInUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes slideInDown { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
+    .animate-out { animation: slideFadeOut .5s ease forwards; }
+    .fade-in-up { animation: fadeInUp .6s ease forwards; }
+    .slide-in-down { animation: slideInDown .6s ease forwards; }
+    #homeContent{display:none; opacity:0}
+    #homeContent.visible{display:block; opacity:1}
+    /* product grid */
+    .card .btn { width: 100%; }
+    /* Chat widget */
+    .chat-toggle{position:fixed;right:18px;bottom:18px;z-index:1100}
+    .chat-panel{position:fixed;right:18px;bottom:72px;width:320px;max-height:500px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.15);overflow:hidden;display:none;flex-direction:column;z-index:1100}
+    .chat-header{background:var(--accent);color:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+    .chat-body{padding:12px;overflow:auto;flex:1;background:#f8f9fa}
+    .chat-input{padding:10px;border-top:1px solid #eee;background:#fff;display:flex;gap:8px}
+    .bubble{display:inline-block;padding:8px 12px;border-radius:12px;margin-bottom:8px;max-width:80%}
+    .bubble.user{background:#e9ecef}
+    .bubble.admin{background:#cfe9ff;align-self:flex-end}
+    .feedback-slide{position:fixed;left:18px;bottom:18px;background:#222;color:#fff;padding:10px 14px;border-radius:8px;transform:translateY(120%);transition:transform .35s ease;z-index:1200}
+    .feedback-slide.show{transform:translateY(0)}
+    /* admin messages list */
+    .message-item.unread{background:#f8f9fa;font-weight:600}
+    .message-thread{max-height:50vh;overflow:auto;padding:8px}
+    /* payment modal small tweaks */
+    .processing-spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+    .khqr-box{background:#fff;border:1px solid #e7e7e7;border-radius:16px;padding:18px;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.04)}
+    .khqr-box img{max-width:280px;width:100%;border-radius:12px;background:#fff;padding:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* responsive */
+    @media(max-width:380px){.chat-panel{right:8px;left:8px;width:auto}}
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <section id="loginSection" class="login-container">
+    <div class="login-card" id="loginCard">
+      <h2>Touz Computer</h2>
+      <h4 style="text-align:center;font-size:14px;color:#777;margin-bottom:20px">Phnom Penh, Cambodia</h4>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="EnterName" class="form-label">Username</label>
+          <input type="text" id="EnterName" class="form-control" placeholder="Enter Username" required>
+        </div>
+        <div class="mb-3">
+          <label for="EnterPassword" class="form-label">Password</label>
+          <input type="password" id="EnterPassword" class="form-control" placeholder="Enter Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <div class="error-message" id="errorMessage"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <div id="homeContent" aria-hidden="true">
+    <header class="slide-in-down">
+      <h1>Touz Computer</h1>
+      <p>Phnom Penh, Cambodia</p>
+      <div style="position:absolute;right:18px;top:12px;">
+        <button class="btn btn-primary" id="checkoutBtn">Checkout</button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">Cart (<span id="cartCount">0</span>)</button>
+        <button id="messagesBtn" class="btn btn-info" style="display:none" data-bs-toggle="modal" data-bs-target="#messagesModal">Messages (<span id="msgCount">0</span>)</button>
+        <button id="logoutBtn" class="btn btn-danger ms-2">Logout</button>
+      </div>
+    </header>
+
+    <nav class="navbar navbar-expand bg-light justify-content-center py-2 fade-in-up">
+      <a class="nav-link mx-3" href="#products">Products</a>
+      <a class="nav-link mx-3" href="#about">About Us</a>
+    </nav>
+
+    <section class="banner fade-in-up">
+      <h2>Welcome to My Website</h2>
+    </section>
+
+    <section id="products" class="container fade-in-up">
+      <div class="row g-4" id="productList"></div>
+    </section>
+
+    <section id="about" class="container fade-in-up">
+      <div class="card p-4 mx-auto" style="max-width:700px;">
+        <h2>About Us</h2>
+        <p>Touz Computer is a small shop in Phnom Penh, Cambodia that sells gaming laptops at fair prices. We help students and gamers find the right laptop for their needs.</p>
+      </div>
+    </section>
+
+    <footer><p>&copy; 2026 Touz Computer</p></footer>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Your Cart</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul id="cartItems" class="list-group mb-3"></ul><p><strong>Total: $<span id="cartTotal">0</span></strong></p></div>
+    </div></div>
+  </div>
+
+  <!-- Payment Modal (ABA KHQR) -->
+  <div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">ABA KHQR Payment</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="paymentForm">
+          <div class="alert alert-light border mb-3 text-center">
+            <strong>Total: $<span id="payAmount">0</span></strong>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Full name</label>
+              <input id="payName" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input id="payEmail" type="email" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="text-center mb-3">
+            <div class="khqr-box mx-auto" style="max-width:420px;">
+              <img src="images/aba-pay-qr.png" alt="ABA Pay QR" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect width=%22120%22 height=%22120%22 fill=%22%23f3f3f3%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23777%22 font-size=%2218%22%3EQR%3C/text%3E%3C/svg%3E'">
+            </div>
+            <p class="mt-3 mb-1"><strong>Scan. Pay. Done.</strong></p>
+            <small class="text-muted">Pay the total amount shown above using ABA Pay / KHQR.</small>
+          </div>
+
+          <div class="mt-3 text-end">
+            <button type="submit" id="payNowBtn" class="btn btn-success">I have paid</button>
+          </div>
+        </form>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Receipt</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="receiptBody"></div>
+    </div></div>
+  </div>
+
+  <!-- Admin Messages Modal -->
+  <div class="modal fade" id="messagesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Contact Messages</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body d-flex gap-3">
+        <div style="width:35%"><ul id="messagesList" class="list-group"></ul></div>
+        <div style="width:65%">
+          <div id="threadHeader" class="mb-2"></div>
+          <div id="threadMessages" class="message-thread"></div>
+          <div id="replyArea" style="display:none" class="mt-2">
+            <textarea id="replyText" class="form-control mb-2" rows="2" placeholder="Write a reply..."></textarea>
+            <div class="text-end"><button id="sendReplyBtn" class="btn btn-primary">Send Reply</button></div>
+          </div>
+          <div id="noSelection" class="text-muted">Select a message on the left to view conversation.</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Chat Widget (customer) -->
+  <div class="chat-toggle">
+    <button id="openChatBtn" class="btn btn-primary rounded-circle" title="Chat with us">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+  </div>
+
+  <div class="chat-panel d-flex flex-column" id="chatPanel" aria-hidden="true">
+    <div class="chat-header">
+      <div><strong>Contact Us</strong><div class="small">We reply as soon as we can</div></div>
+      <div><button id="closeChatBtn" class="btn btn-sm btn-light">X</button></div>
+    </div>
+    <div class="chat-body d-flex flex-column" id="chatBody"></div>
+    <div class="chat-input">
+      <input id="chatName" class="form-control form-control-sm" placeholder="Name" />
+      <input id="chatEmail" class="form-control form-control-sm" placeholder="Email" />
+    </div>
+    <div class="chat-input">
+      <input id="chatText" class="form-control form-control-sm" placeholder="Write a message..." />
+      <button id="chatSendBtn" class="btn btn-primary btn-sm">Send</button>
+    </div>
+  </div>
+
+  <!-- Feedback slide -->
+  <div class="feedback-slide" id="feedbackSlide" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // -------------------------
+    // Data & storage helpers
+    // -------------------------
+    const IMAGE_FOLDER = "images/";
+    const VALID_USERNAME = "Admin";
+    const VALID_PASSWORD = "12345678";
+    const STORAGE_MSGS = "contactMessages_v2";
+    const STORAGE_ORDERS = "orders_v2";
+
+    const products = [
+      { name:"MSI Cyborg 17", price:1289, specs:"i7-13620H, 16GB RAM, RTX 5050 8GB, 1TB", image:"gpu-nb.png" },
+      { name:"Katana 17 HX", price:1399, specs:"i7-14650HX, 16GB RAM, RTX 5060 8GB, 1TB", image:"images.jpg" },
+      { name:"MSI Titan 18 HX", price:5999, specs:"Ultra 9 290HX, 64GB RAM, RTX 5090 24GB, 2TB", image:"MSI_TITAN_18_HX_AI_2048x2048_2.webp" },
+      { name:"MSI Stealth 18 HX AI", price:2399, specs:"Ultra 9 275HX, 16GB RAM, RTX 5070Ti 12GB, 1TB", image:"msi-stealth-18-hx-ai-laptop-design_optimized.webp" },
+      { name:"MSI Vector A18 HX", price:2349, specs:"Ryzen 9 9955HX, 32GB RAM, RTX 5070Ti 12GB, 1TB", image:"81J3GvISGOL._AC_UF894,1000_QL80_.jpg" },
+      { name:"MSI Crosshair 16HX AI", price:1549, specs:"Ultra 9 275HX, 16GB RAM, RTX 5060 8GB, 1TB", image:"nv-nb.png" }
+    ];
+
+    function loadMessages(){ try { return JSON.parse(localStorage.getItem(STORAGE_MSGS) || "[]"); } catch(e){return [];} }
+    function saveMessages(arr){ localStorage.setItem(STORAGE_MSGS, JSON.stringify(arr)); }
+    function loadOrders(){ try { return JSON.parse(localStorage.getItem(STORAGE_ORDERS) || "[]"); } catch(e){return [];} }
+    function saveOrders(arr){ localStorage.setItem(STORAGE_ORDERS, JSON.stringify(arr)); }
+    function escapeHtml(s){ if(!s) return ""; return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'", "&#039;"); }
+
+    // Helper function to create a placeholder image SVG
+    function getPlaceholderSvg() {
+      return "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20x%3D%278%27%20y%3D%2710%27%20width%3D%2748%27%20height%3D%2730%27%20rx%3D%272%27%20fill%3D%27%23999%27/%3E%3Crect%20x%3D%2712%27%20y%3D%2714%27%20width%3D%2740%27%20height%3D%2722%27%20fill%3D%27%23fff%27/%3E%3Crect%20x%3D%274%27%20y%3D%2742%27%20width%3D%2756%27%20height%3D%276%27%20rx%3D%272%27%20fill%3D%27%23333%27/%3E%3C/svg%3E";
+    }
+
+    // -------------------------
+    // Render product list
+    // -------------------------
+    const productList = document.getElementById("productList");
+    let cardsHTML = "";
+    products.forEach((p,i) => {
+      const imgSrc = (p.image.startsWith("images/") || p.image.startsWith("http")) ? p.image : (IMAGE_FOLDER + p.image);
+      const placeholderSvg = getPlaceholderSvg();
+      cardsHTML += `<div class="col-md-4">
+        <div class="card p-3 text-center h-100">
+          <img src="${imgSrc}" alt="${escapeHtml(p.name)}" onerror="this.src='${placeholderSvg}'">
+          <h3>${escapeHtml(p.name)}</h3>
+          <p><strong>Price:</strong> $${p.price}</p>
+          <p>${escapeHtml(p.specs)}</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" onclick="addToCart(${i})">Add to Cart</button>
+            <button class="btn btn-success" onclick="buyNow(${i})">Buy Now</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    productList.innerHTML = cardsHTML;
+
+    // -------------------------
+    // Cart logic
+    // -------------------------
+    let cart = [];
+    function addToCart(i){
+      cart.push(products[i]);
+      updateCart();
+      showFeedback("Added to cart");
+    }
+    function buyNow(i){
+      cart = [products[i]];
+      updateCart();
+      const pm = new bootstrap.Modal(document.getElementById('paymentModal'));
+      pm.show();
+    }
+    function updateCart(){
+      document.getElementById("cartCount").textContent = cart.length;
+      const list = document.getElementById("cartItems");
+      list.innerHTML = "";
+      let t = 0;
+      cart.forEach(i => { t += i.price; list.innerHTML += `<li class="list-group-item">${escapeHtml(i.name)} - $${i.price}</li>`; });
+      document.getElementById("cartTotal").textContent = t;
+      document.getElementById("payAmount").textContent = t;
+    }
+
+    // -------------------------
+    // Messages & chat
+    // -------------------------
+    function addMessageObject(obj){
+      const msgs = loadMessages();
+      msgs.unshift(obj); // newest first
+      saveMessages(msgs);
+      updateMessagesUI();
+      updateChatUI();
+    }
+
+    function updateMessagesUI(){
+      const messages = loadMessages();
+      const list = document.getElementById("messagesList");
+      const count = document.getElementById("msgCount");
+      list.innerHTML = "";
+      count.textContent = messages.length;
+      if(messages.length === 0){ list.innerHTML = `<li class="list-group-item text-muted">No messages</li>`; return; }
+      messages.forEach(m => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-start " + (m.status !== 'read' ? 'unread' : '');
+        li.innerHTML = `<div class="ms-2 me-auto">
+                          <div class="fw-bold">${escapeHtml(m.name)} ${m.username ? `(<small>${escapeHtml(m.username)}</small>)` : ''}</div>
+                          <div class="small text-muted">${new Date(m.timestamp).toLocaleString()} • ${escapeHtml(m.email)}</div>
+                          <div class="mt-1">${escapeHtml(m.message).slice(0,80)}${m.message.length>80?'...':''}</div>
+                        </div>
+                        <div><button class="btn btn-sm btn-primary openMsgBtn" data-id="${m.id}">Open</button></div>`;
+        list.appendChild(li);
+      });
+      // handlers
+      Array.from(document.getElementsByClassName("openMsgBtn")).forEach(b => {
+        b.addEventListener("click", () => openThread(b.getAttribute("data-id")));
+      });
+    }
+
+    function openThread(id){
+      const messages = loadMessages();
+      const m = messages.find(x => String(x.id) === String(id));
+      if(!m) return;
+      m.status = 'read';
+      saveMessages(messages);
+      updateMessagesUI();
+
+      const threadHeader = document.getElementById("threadHeader");
+      const threadMessages = document.getElementById("threadMessages");
+      const replyArea = document.getElementById("replyArea");
+      const noSelection = document.getElementById("noSelection");
+
+      threadHeader.innerHTML = `<strong>${escapeHtml(m.name)}</strong> <br/><small class="text-muted">${escapeHtml(m.email)} • ${new Date(m.timestamp).toLocaleString()}</small>`;
+      threadMessages.innerHTML = "";
+      // original message
+      threadMessages.innerHTML += `<div class="mb-2"><div class="bubble user">${escapeHtml(m.message)}</div><div class="small text-muted mt-1">${new Date(m.timestamp).toLocaleString()}</div></div>`;
+      if(Array.isArray(m.replies) && m.replies.length){
+        m.replies.forEach(r=>{
+          if(r.from === 'admin'){
+            threadMessages.innerHTML += `<div class="mb-2 text-end"><div class="bubble admin">${escapeHtml(r.text)}</div><div class="small text-muted mt-1">${new Date(r.timestamp).toLocaleString()}</div></div>`;
+          } else {
+            threadMessages.innerHTML += `<div class="mb-2"><div class="bubble user">${escapeHtml(r.text)}</div><div class="small text-muted mt-1">${new Date(r.timestamp).toLocaleString()}</div></div>`;
+          }
+        });
+      }
+      // show reply to admin only
+      if(localStorage.getItem("username") === VALID_USERNAME){
+        replyArea.style.display = 'block';
+        noSelection.style.display = 'none';
+        document.getElementById("sendReplyBtn").dataset.targetId = m.id;
+      } else {
+        replyArea.style.display = 'none';
+        noSelection.style.display = 'none';
+      }
+    }
+
+    function sendReply(){
+      const btn = document.getElementById("sendReplyBtn");
+      const id = btn.dataset.targetId;
+      const text = document.getElementById("replyText").value.trim();
+      if(!text) return;
+      const messages = loadMessages();
+      const m = messages.find(x => String(x.id) === String(id));
+      if(!m) return;
+      if(!Array.isArray(m.replies)) m.replies = [];
+      m.replies.push({ from:'admin', text, timestamp:new Date().toISOString() });
+      saveMessages(messages);
+      document.getElementById("replyText").value = "";
+      openThread(id);
+      updateMessagesUI();
+      showFeedback("Reply sent");
+    }
+
+    document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
+
+    // Chat widget UI
+    const openChatBtn = document.getElementById("openChatBtn");
+    const chatPanel = document.getElementById("chatPanel");
+    const closeChatBtn = document.getElementById("closeChatBtn");
+    openChatBtn.addEventListener("click", () => { 
+      chatPanel.style.display='flex'; 
+      chatPanel.classList.add('fade-in-up'); 
+      chatPanel.setAttribute('aria-hidden','false'); 
+      updateChatUI(); 
+    });
+    closeChatBtn.addEventListener("click", () => { 
+      chatPanel.style.display='none'; 
+      chatPanel.setAttribute('aria-hidden','true'); 
+      chatPanel.classList.remove('fade-in-up');
+    });
+
+    function updateChatUI(){
+      const chatBody = document.getElementById("chatBody");
+      chatBody.innerHTML = "";
+      const messages = loadMessages().slice().reverse(); // oldest first for chat display
+      if(messages.length === 0){ chatBody.innerHTML = `<div class="text-muted small">No messages yet. Use the form below to send a message.</div>`; return; }
+      messages.forEach(m=>{
+        const wrapper = document.createElement('div');
+        wrapper.className='mb-2 d-flex flex-column';
+        wrapper.innerHTML = `<div class="small text-muted">${escapeHtml(m.name)} ${m.username?`(${escapeHtml(m.username)})`:''} • ${new Date(m.timestamp).toLocaleString()}</div>
+                             <div class="bubble user">${escapeHtml(m.message)}</div>`;
+        if(Array.isArray(m.replies) && m.replies.length){
+          m.replies.forEach(r=>{
+            wrapper.innerHTML += (r.from==='admin') ? `<div class="bubble admin mt-2">${escapeHtml(r.text)}</div>` : `<div class="bubble user mt-2">${escapeHtml(r.text)}</div>`;
+          });
+        }
+        chatBody.appendChild(wrapper);
+      });
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    document.getElementById("chatSendBtn").addEventListener("click", () => {
+      const text = document.getElementById("chatText").value.trim();
+      const name = document.getElementById("chatName").value.trim();
+      const email = document.getElementById("chatEmail").value.trim();
+      if(!text) return;
+      if(!name || !email) return alert("Please enter your name and email");
+      const obj = { id: Date.now(), name: name || 'Guest', email: email || '', message: text, username: localStorage.getItem('username') || '', timestamp:new Date().toISOString(), replies:[], status:'unread' };
+      addMessageObject(obj);
+      document.getElementById("chatText").value = '';
+      document.getElementById("chatName").value = '';
+      document.getElementById("chatEmail").value = '';
+      showFeedback("Message sent");
+      updateChatUI();
+    });
+
+    // -------------------------
+    // Feedback slide
+    // -------------------------
+    function showFeedback(text, ms=2200){
+      const slide = document.getElementById('feedbackSlide');
+      slide.textContent = text;
+      slide.classList.add('show');
+      setTimeout(()=> slide.classList.remove('show'), ms);
+    }
+
+    // -------------------------
+    // Login animation + auth
+    // -------------------------
+    const loginForm = document.getElementById('loginForm');
+    const loginSection = document.getElementById('loginSection');
+    const loginCard = document.getElementById('loginCard');
+    const homeContent = document.getElementById('homeContent');
+    const errorMessage = document.getElementById('errorMessage');
+
+    loginForm.addEventListener("submit", function(e){
+      e.preventDefault();
+      const username = document.getElementById('EnterName').value.trim();
+      const password = document.getElementById('EnterPassword').value;
+      if(username === VALID_USERNAME && password === VALID_PASSWORD){
+        errorMessage.style.display='none';
+        loginCard.classList.add('animate-out');
+        setTimeout(() => {
+          loginSection.style.display = 'none';
+          homeContent.classList.add('visible');
+          homeContent.style.display = 'block';
+          localStorage.setItem('isLoggedIn','true');
+          localStorage.setItem('username', username);
+          toggleAdminUI();
+          updateMessagesUI();
+        }, 500);
+      } else {
+        errorMessage.textContent = "Invalid username or password";
+        errorMessage.style.display = 'block';
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function(){
+      cart = [];
+      updateCart();
+      loginSection.style.display = '';
+      homeContent.classList.remove('visible','fade-in-up');
+      homeContent.style.display = 'none';
+      localStorage.removeItem('isLoggedIn'); 
+      localStorage.removeItem('username');
+      loginForm.reset();
+      errorMessage.style.display = 'none';
+      loginCard.classList.remove('animate-out');
+      toggleAdminUI();
+    });
+
+    function toggleAdminUI(){
+      const usernameNow = localStorage.getItem('username');
+      const messagesBtn = document.getElementById('messagesBtn');
+      if(usernameNow === VALID_USERNAME) messagesBtn.style.display = 'inline-block';
+      else messagesBtn.style.display = 'none';
+      updateMessagesUI();
+    }
+
+    // -------------------------
+    // Payment (ABA KHQR)
+    // -------------------------
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      const pm = new bootstrap.Modal(document.getElementById('paymentModal'));
+      document.getElementById('payAmount').textContent = cart.reduce((s,c)=>s+c.price,0);
+      pm.show();
+    });
+
+    document.getElementById('paymentForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if(cart.length === 0) return alert('Cart empty');
+
+      const name = document.getElementById('payName').value.trim();
+      const email = document.getElementById('payEmail').value.trim();
+      if(!name || !email) return alert('Please fill in your name and email');
+
+      const payBtn = document.getElementById('payNowBtn');
+      const original = payBtn.innerHTML;
+      payBtn.disabled = true;
+      payBtn.innerHTML = '<span class="processing-spinner" aria-hidden="true"></span>Processing';
+
+      setTimeout(() => {
+        const order = { id: 'ORD' + Date.now(), name, email, items: cart.slice(), total: cart.reduce((s,c)=>s+c.price,0), timestamp: new Date().toISOString() };
+        const orders = loadOrders();
+        orders.unshift(order);
+        saveOrders(orders);
+
+        cart = [];
+        updateCart();
+
+        bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+        payBtn.disabled = false;
+        payBtn.innerHTML = original;
+        this.reset();
+        showReceipt(order);
+        showFeedback('Payment successful');
+      }, 1300);
+    });
+
+    function showReceipt(order){
+      const body = document.getElementById('receiptBody');
+      body.innerHTML = `<p><strong>Order:</strong> ${escapeHtml(order.id)}</p>
+                        <p><strong>Name:</strong> ${escapeHtml(order.name)} • ${escapeHtml(order.email)}</p>
+                        <p><strong>Items:</strong></p>
+                        <ul>${order.items.map(it=>`<li>${escapeHtml(it.name)} - $${it.price}</li>`).join('')}</ul>
+                        <p><strong>Total:</strong> $${order.total}</p>
+                        <p class="small text-muted">${new Date(order.timestamp).toLocaleString()}</p>`;
+      const rm = new bootstrap.Modal(document.getElementById('receiptModal'));
+      rm.show();
+    }
+
+    // -------------------------
+    // Page start
+    // -------------------------
+    window.addEventListener('load', function(){
+      if(localStorage.getItem('isLoggedIn') === 'true'){
+        loginSection.style.display = 'none';
+        homeContent.classList.add('visible');
+        homeContent.style.display = 'block';
+      }
+      toggleAdminUI();
+      updateCart();
+      updateMessagesUI();
+      updateChatUI();
+    });
+
+    // Accessibility: pressing Enter in chat text sends
+    document.getElementById('chatText').addEventListener('keydown', function(e){ 
+      if(e.key === 'Enter'){ 
+        e.preventDefault(); 
+        document.getElementById('chatSendBtn').click(); 
+      } 
+    });
+
+  </script>
+</body>
+</html>
