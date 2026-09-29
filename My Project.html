@@ -47,7 +47,7 @@
     /* payment modal small tweaks */
     .processing-spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
     .khqr-box{background:#fff;border:1px solid #e7e7e7;border-radius:16px;padding:18px;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.04)}
-    .khqr-box img{max-width:280px;width:100%;border-radius:12px;background:#fff;padding:8px}
+    .khqr-box img{max-width:300px;width:100%;height:auto;border-radius:12px;background:#fff;padding:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
     /* responsive */
     @media(max-width:380px){.chat-panel{right:8px;left:8px;width:auto}}
@@ -142,7 +142,9 @@
 
           <div class="text-center mb-3">
             <div class="khqr-box mx-auto" style="max-width:420px;">
-              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAACXBIWXMAAA7DAAAOwwHHb6thAAACfklEQVR4nO3cQW7bMBCFJZnStpFCnhOk8I1S9OALlD1U2XNPUeoVLL2AWwqtL+AVcvQFcujhCXpxZ7uJVJPSH86M+D7AMDQ7lCXwwZwpzpBKKaWUUkoppZRSSilFkiSe5zkXRYFlWaxpGhRFwTRNiaKIJElImSZJwuVySVVVVBQFzueTJEkiksvlwq7rYrfbQZ7niCRJwv1+5+FwIF3XZZvNRkkkzXNeg8HAoijg+XxSKpVKpVIqlUqlUqn0v7XbbbbbbckqigLv95uzs7BdlWZbscDiwIAjY6uoqy7IMxWIxxuMxu1gsrNVqsTRNWVmWbLfbsclkwsrlMttsNmw8HrM4jlmtVmODwYBtNhu22+34+PhgYRiwQqEgZVmWlWVJg8GA3W43Nj8/z/b7PRuPx6xYLDIURdQsy2QwGLDpdMpGoxGbzWYsiuKHZVkWC4IARVHEYrGYRVHEQqEQmxwfH7PhcMji+Hzfx36/R51Op1RKKaWUUkoppZRSSik1wTiOWaPRYFHEfD4f29zcZKPRiH2/39vj4+O3lUqlUqmUUkoppZRSSimlFIPhcMi73S778uWL9Xo99vj4yE5OTthsNmNJkrD7+3t2cXFhlUpFyrZt22S323H4/f38fH7BYDCg1+vFdF0nTdMIwzDC87wsvttut9nn5yedTCaMRiNqNptSJEmSWL/fp7Ozs8dOp8Py+TyVUkoppZRSSimlFBrBYJCF43GWyWTYaDRiURS5+/s7uxwONBwOqVQqlUqlUkoppZRSSimlFFIDBvPYbDYX5OV52pSU+m3KyspKsclkQu12m47HY+p0OvQz1Wv1ev2bwWBAlUqFTidRFAWOx+NHt9tliUTi2Szu+35LKaWUUkoppZRSSimlVKr88OHD+y81ysKx1b3QvwAAAABJRU5ErkJggg==" alt="ABA Pay QR">
+              <div id="qrContainer" style="min-height:300px;display:flex;align-items:center;justify-content:center;">
+                <p class="text-muted">Loading QR code...</p>
+              </div>
             </div>
             <p class="mt-3 mb-1"><strong>Scan. Pay. Done.</strong></p>
             <small class="text-muted">Pay the total amount shown above using ABA Pay / KHQR.</small>
@@ -240,6 +242,27 @@
       return "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20x%3D%278%27%20y%3D%2710%27%20width%3D%2748%27%20height%3D%2730%27%20rx%3D%272%27%20fill%3D%27%23999%27/%3E%3Crect%20x%3D%2712%27%20y%3D%2714%27%20width%3D%2740%27%20height%3D%2722%27%20fill%3D%27%23fff%27/%3E%3Crect%20x%3D%274%27%20y%3D%2742%27%20width%3D%2756%27%20height%3D%276%27%20rx%3D%272%27%20fill%3D%27%23333%27/%3E%3C/svg%3E";
     }
 
+    // Load QR from external source
+    function loadQRCode() {
+      const container = document.getElementById('qrContainer');
+      const img = document.createElement('img');
+      img.src = 'https://raw.githubusercontent.com/Pitou1629/tou/main/images/aba-pay-qr.png';
+      img.alt = 'ABA Pay QR';
+      img.style.maxWidth = '100%';
+      img.style.width = '100%';
+      img.style.borderRadius = '12px';
+      img.style.background = '#fff';
+      img.style.padding = '8px';
+      img.onerror = function() {
+        container.innerHTML = '<p class="text-danger">QR Code not found. Please upload images/aba-pay-qr.png to your repository.</p>';
+      };
+      img.onload = function() {
+        container.innerHTML = '';
+        container.appendChild(img);
+      };
+      container.appendChild(img);
+    }
+
     // -------------------------
     // Render product list
     // -------------------------
@@ -277,6 +300,7 @@
       updateCart();
       const pm = new bootstrap.Modal(document.getElementById('paymentModal'));
       pm.show();
+      setTimeout(loadQRCode, 500);
     }
     function updateCart(){
       document.getElementById("cartCount").textContent = cart.length;
@@ -501,6 +525,7 @@
       const pm = new bootstrap.Modal(document.getElementById('paymentModal'));
       document.getElementById('payAmount').textContent = cart.reduce((s,c)=>s+c.price,0);
       pm.show();
+      setTimeout(loadQRCode, 500);
     });
 
     document.getElementById('paymentForm').addEventListener('submit', function(e){
