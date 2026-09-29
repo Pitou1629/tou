@@ -50,20 +50,151 @@
             font-size: 14px;
         }
 
-        .qr-code-container {
-            text-align: center;
-            padding: 20px;
-            background: #f9f9f9;
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
             border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-header {
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-header h1 {
+            color: #0055a5;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .total-amount {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            padding: 15px 0;
+            background: #f9f9f9;
+            border-radius: 5px;
             margin: 20px 0;
         }
 
-        .qr-code-container img {
+        .form-section {
+            margin: 20px 0;
+        }
+
+        .form-section label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-section input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .qr-container {
+            text-align: center;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .qr-container img {
             max-width: 300px;
             height: auto;
-            border: 2px solid #0055a5;
-            padding: 10px;
-            background: white;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .payment-instructions {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .payment-instructions h3 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .payment-instructions p {
+            color: #666;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .payment-button {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        .payment-button:hover {
+            background: #218838;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .payment-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .payment-row {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -81,7 +212,6 @@
         <a class="nav-link mx-3" href="#products">Products</a>
         <a class="nav-link mx-3" href="#about">About Us</a>
         <a class="nav-link mx-3" href="#contact">Contact Us</a>
-        <a class="nav-link mx-3" href="#payment">Payment</a>
     </nav>
     <section id="login" class="container">
     
@@ -135,30 +265,6 @@
         </div>
     </section>
 
-    <!-- Payment Section -->
-    <section id="payment" class="container">
-        <div class="card p-4 mx-auto" style="max-width: 700px;">
-            <h2>Payment</h2>
-            <p class="text-muted">Scan the QR code below to complete your payment</p>
-            
-            <div class="qr-code-container">
-                <h5>Scan to Pay</h5>
-                <!-- Replace 'payment-qr.png' with your actual QR code filename -->
-                <img src="images/payment-qr.png" alt="Payment QR Code" 
-                     onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%22100%22 y=%22100%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%23999%22%3EQR Code Image%3C/text%3E%3C/svg%3E';">
-            </div>
-
-            <div class="alert alert-info mt-3">
-                <strong>Payment Methods:</strong>
-                <ul class="mb-0 mt-2">
-                    <li>Bank Transfer</li>
-                    <li>Mobile Payment (ABA, Wing)</li>
-                    <li>Credit/Debit Card</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
     <footer>
         <p>&copy; 2026 Touz Computer</p>
     </footer>
@@ -177,9 +283,46 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="checkout()">Checkout</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="openPaymentModal()">Checkout</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ABA KHQR Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="payment-container">
+            <div class="payment-header">
+                <span class="close-btn" onclick="closePaymentModal()">&times;</span>
+                <h1>ABA KHQR Payment</h1>
+            </div>
+
+            <div class="total-amount">
+                Total: $<span id="paymentTotal">0</span>
+            </div>
+
+            <div class="payment-row">
+                <div class="form-section">
+                    <label>Full name</label>
+                    <input type="text" id="fullName" placeholder="Enter your full name">
+                </div>
+                <div class="form-section">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                </div>
+            </div>
+
+            <div class="qr-container">
+                <img src="images/aba-khqr.png" alt="ABA Pay QR" 
+                     onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Crect width=%22300%22 height=%22300%22 fill=%22%23fff%22 stroke=%22%23ddd%22 stroke-width=%222%22/%3E%3Ctext x=%22150%22 y=%22150%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2218%22 fill=%22%23999%22%3EABA Pay QR%3C/text%3E%3C/svg%3E';">
+            </div>
+
+            <div class="payment-instructions">
+                <h3>Scan. Pay. Done.</h3>
+                <p>Pay the total amount shown above using ABA Pay / KHQR.</p>
+            </div>
+
+            <button class="payment-button" onclick="confirmPayment()">I have paid</button>
         </div>
     </div>
 
@@ -263,15 +406,51 @@
             document.getElementById("cartTotal").textContent = total;
         }
 
-        function checkout() {
+        // Payment Modal Functions
+        function openPaymentModal() {
             if (cart.length === 0) {
                 alert("Your cart is empty!");
                 return;
             }
-            alert("Proceeding to payment. Total: $" + document.getElementById("cartTotal").textContent);
-            // Redirect to payment section
-            window.location.href = "#payment";
+            const total = document.getElementById("cartTotal").textContent;
+            document.getElementById("paymentTotal").textContent = total;
+            document.getElementById("paymentModal").classList.add("active");
         }
+
+        function closePaymentModal() {
+            document.getElementById("paymentModal").classList.remove("active");
+        }
+
+        function confirmPayment() {
+            const fullName = document.getElementById("fullName").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const total = document.getElementById("paymentTotal").textContent;
+
+            if (!fullName) {
+                alert("Please enter your full name");
+                return;
+            }
+            if (!email) {
+                alert("Please enter your email");
+                return;
+            }
+
+            alert(`Thank you for your payment!\n\nCustomer: ${fullName}\nEmail: ${email}\nAmount: $${total}\n\nYour order has been confirmed.`);
+            
+            // Clear cart and close modal
+            cart = [];
+            updateCart();
+            document.getElementById("fullName").value = "";
+            document.getElementById("email").value = "";
+            closePaymentModal();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById("paymentModal").addEventListener("click", function(e) {
+            if (e.target === this) {
+                closePaymentModal();
+            }
+        });
 
         // Contact form (demo only, no backend)
         document.getElementById("contactForm").addEventListener("submit", function (e) {
