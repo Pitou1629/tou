@@ -49,6 +49,22 @@
             color: #777;
             font-size: 14px;
         }
+
+        .qr-code-container {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .qr-code-container img {
+            max-width: 300px;
+            height: auto;
+            border: 2px solid #0055a5;
+            padding: 10px;
+            background: white;
+        }
     </style>
 </head>
 
@@ -65,6 +81,7 @@
         <a class="nav-link mx-3" href="#products">Products</a>
         <a class="nav-link mx-3" href="#about">About Us</a>
         <a class="nav-link mx-3" href="#contact">Contact Us</a>
+        <a class="nav-link mx-3" href="#payment">Payment</a>
     </nav>
     <section id="login" class="container">
     
@@ -118,6 +135,30 @@
         </div>
     </section>
 
+    <!-- Payment Section -->
+    <section id="payment" class="container">
+        <div class="card p-4 mx-auto" style="max-width: 700px;">
+            <h2>Payment</h2>
+            <p class="text-muted">Scan the QR code below to complete your payment</p>
+            
+            <div class="qr-code-container">
+                <h5>Scan to Pay</h5>
+                <!-- Replace 'payment-qr.png' with your actual QR code filename -->
+                <img src="images/payment-qr.png" alt="Payment QR Code" 
+                     onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%22100%22 y=%22100%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%23999%22%3EQR Code Image%3C/text%3E%3C/svg%3E';">
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <strong>Payment Methods:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Bank Transfer</li>
+                    <li>Mobile Payment (ABA, Wing)</li>
+                    <li>Credit/Debit Card</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <p>&copy; 2026 Touz Computer</p>
     </footer>
@@ -133,6 +174,10 @@
                 <div class="modal-body">
                     <ul id="cartItems" class="list-group mb-3"></ul>
                     <p><strong>Total: $<span id="cartTotal">0</span></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="checkout()">Checkout</button>
                 </div>
             </div>
         </div>
@@ -216,6 +261,16 @@
                 cartItems.innerHTML += `<li class="list-group-item">${item.name} - $${item.price}</li>`;
             });
             document.getElementById("cartTotal").textContent = total;
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            alert("Proceeding to payment. Total: $" + document.getElementById("cartTotal").textContent);
+            // Redirect to payment section
+            window.location.href = "#payment";
         }
 
         // Contact form (demo only, no backend)
